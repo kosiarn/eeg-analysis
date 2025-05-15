@@ -1,4 +1,4 @@
-from time import process_time
+from fontTools.qu2cu.qu2cu import elevate_quadratic
 from tqdm import tqdm
 from utils.channel_names import CHANNEL_NAMES
 import numpy as np
@@ -22,7 +22,8 @@ class PreprocessingDataReader:
         codes = annotations.description
         n_samples = edf_data.n_times                # liczba próbek EEG
         sfreq = edf_data.info['sfreq']              # Częstotliwość 160Hz
-        time_array = np.arange(n_samples) / sfreq
+
+        time_array = np.array([round(x, 10) for x in np.arange(0, n_samples / sfreq, 0.00625)])
         code_array = []
         counter = 0
         for timeVal in time_array:
@@ -39,16 +40,13 @@ class PreprocessingDataReader:
                 raw.get_data().T,
                 columns=CHANNEL_NAMES,
             )
-            # https://stackoverflow.com/questions/22649693/drop-rows-with-all-zeros-in-pandas-data-frame
-            edf_data = edf_data[~(edf_data == 0).all(axis=1)]
             edf_data = edf_data.drop(
                 set(edf_data.columns) - set(CHANNEL_NAMES)
             )
             codes = self._get_codes(raw)
             edf_data["codes"] = np.array(codes).T
-            edf_data = edf_data.drop(
-                set(edf_data.columns) - set(CHANNEL_NAMES)
-            )
+            # https://stackoverflow.com/questions/22649693/drop-rows-with-all-zeros-in-pandas-data-frame
+            edf_data = edf_data[~(edf_data == 0).all(axis=1)]
 
             return edf_data
         except Exception as e:
@@ -73,5 +71,5 @@ class PreprocessingDataReader:
 
 if __name__ == '__main__':
     path = '../data/physionet.org/files/eegmmidb/1.0.0'
-    data = PreprocessingDataReader(path=path, patient=[1, 2, 3])
+    data = PreprocessingDataReader(path=path, patient=[1])
     edf = data.load()
