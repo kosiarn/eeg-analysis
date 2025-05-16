@@ -11,6 +11,7 @@ class PreprocessingDataReader:
     def __init__(self, path: str) -> None:
         self.path = path
         self.patient = None
+        self.experiment = None
         self.data = []
 
     def _get_path(self, patient: int) -> str:
@@ -54,13 +55,16 @@ class PreprocessingDataReader:
 
     def load(self, patient: Union[int|List[int]], experiment: Union[int|List[int]]) -> pd.DataFrame:
         self.patient = patient if isinstance(patient, list) else [patient]
+        self.experiment = experiment if isinstance(experiment, list) else [experiment]
+        experiments = [f"R{e:02d}" for e in self.experiment]
+
         patients_data = pd.DataFrame()
         for patient in self.patient:
             patient_path = self._get_path(patient)
             if not os.path.exists(patient_path):
                 print(f"Patient folder not found: {patient_path}")
             for file in tqdm(os.listdir(patient_path), desc=f"Reading EDF rom patient: {patient:03d}"):
-                if file.endswith(".edf"):
+                if file.endswith(".edf") and any(exp in file for exp in experiments):
                     file_path = os.path.join(patient_path, file)
                     patient_data = self._read_edf_file(file_path)
                     patients_data = pd.concat([patients_data, patient_data], ignore_index=True)
@@ -73,4 +77,4 @@ class PreprocessingDataReader:
 if __name__ == '__main__':
     path = '../data/physionet.org/files/eegmmidb/1.0.0'
     data = PreprocessingDataReader(path=path)
-    edf = data.load(patient=[1], experiment=[0])
+    edf = data.load(patient=[1], experiment=[1, 2, 3])
