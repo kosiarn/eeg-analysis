@@ -5,7 +5,7 @@ from utils.channel_names import CHANNEL_NAMES
 import numpy as np
 import pandas as pd
 import mne
-from typing import Union, List
+from typing import Union, List, Literal
 import os
 
 class PreprocessingDataReader:
@@ -112,7 +112,7 @@ class PreprocessingDataReader:
                     self.edf_data = pd.concat([self.edf_data, patient_data], ignore_index=True)
 
 
-    def normalize(self, norm_type: str = "min-max"):
+    def normalize(self, norm_type: Literal['min-max', 'z-score'] = "min-max") -> None:
         """
         Normalizes the EEG data using the specified method.
 
@@ -133,7 +133,7 @@ class PreprocessingDataReader:
         scaled = scaler.fit_transform(features)
         self.edf_data.loc[:, features.columns] = scaled
 
-    def get(self):
+    def get(self) -> pd.DataFrame:
         """
         Returns the preprocessed and normalized EEG dataset.
 
