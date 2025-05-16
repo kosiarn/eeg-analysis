@@ -1,11 +1,9 @@
 import pywt
 from enum import Enum
-import logging
 from utils.channel_names import ChannelName, CHANNEL_NAMES
 from typing import Literal
 from pandas import DataFrame
 from numpy.typing import ArrayLike
-logger = logging.getLogger("waveletTransform")
 
 class Wavelet(Enum):
     CGAU4 = "cgau4"
