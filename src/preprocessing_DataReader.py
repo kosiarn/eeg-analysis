@@ -1,4 +1,5 @@
 from fontTools.qu2cu.qu2cu import elevate_quadratic
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from tqdm import tqdm
 from utils.channel_names import CHANNEL_NAMES
 import numpy as np
@@ -12,6 +13,7 @@ class PreprocessingDataReader:
         self.path = path
         self.patient = None
         self.experiment = None
+        self.edf_data = pd.DataFrame()
         self.data = []
 
     def _get_path(self, patient: int) -> str:
@@ -58,7 +60,6 @@ class PreprocessingDataReader:
         self.experiment = experiment if isinstance(experiment, list) else [experiment]
         experiments = [f"R{e:02d}" for e in self.experiment]
 
-        patients_data = pd.DataFrame()
         for patient in self.patient:
             patient_path = self._get_path(patient)
             if not os.path.exists(patient_path):
@@ -67,14 +68,25 @@ class PreprocessingDataReader:
                 if file.endswith(".edf") and any(exp in file for exp in experiments):
                     file_path = os.path.join(patient_path, file)
                     patient_data = self._read_edf_file(file_path)
-                    patients_data = pd.concat([patients_data, patient_data], ignore_index=True)
-        return patients_data
+                    self.edf_data = pd.concat([self.edf_data, patient_data], ignore_index=True)
+        return self.edf_data
 
-    def normalize(self):
-        pass
+    def normalize(self, norm_type: str = "min-max"):
+        if self.edf_data.empty:
+            print("No data loaded. Please call load() before normalize().")
 
+        column_names = self.edf_data.columns
+        if norm_type == "min-max":
+            scaler = MinMaxScaler()
+        elif norm_type == "z-score":
+            scaler = StandardScaler()
+        else:
+            raise ValueError("Normalization type must be 'min-max' or 'z-score'.")
+
+        self.edf_data[column_names] = scaler.fit_transform(self.edf_data[column_names])
 
 if __name__ == '__main__':
     path = '../data/physionet.org/files/eegmmidb/1.0.0'
     data = PreprocessingDataReader(path=path)
-    edf = data.load(patient=[1], experiment=[1, 2, 3])
+    data.load(patient=[1], experiment=[1, 2, 3])
+    data.normalize(norm_type="min-max")
