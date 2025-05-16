@@ -26,7 +26,14 @@ class Transformer:
         transformed: dict[ChannelName | Literal["codes"], ArrayLike] = {}
         transformed["codes"] = data["codes"]
         for channel in target_channels:
-            coef, _freqs = pywt.cwt(data[channel], scales, self.wavelet.value)
+            coef, _ = pywt.cwt(data[channel], scales, self.wavelet.value)
             transformed[channel] = coef
         return transformed
 
+if __name__ == "__main__":
+    import preprocessing_DataReader as data_reader
+    data = data_reader.PreprocessingDataReader("data/physionet.org/files/eegmmidb/1.0.0")
+    data.load([1], [1])
+    transformer = Transformer(Wavelet.CGAU4)
+    transformed = transformer.CWTTransform(data.get(), scales = [1,2,3], channels = "all")
+    print(transformed.keys())
