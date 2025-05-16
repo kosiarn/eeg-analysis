@@ -1,4 +1,5 @@
 from fontTools.qu2cu.qu2cu import elevate_quadratic
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from tqdm import tqdm
 from utils.channel_names import CHANNEL_NAMES
 import numpy as np
@@ -8,9 +9,11 @@ from typing import Union, List
 import os
 
 class PreprocessingDataReader:
-    def __init__(self, path: str, patient: Union[int|List[int]]) -> None:
+    def __init__(self, path: str) -> None:
         self.path = path
-        self.patient = patient if isinstance(patient, list) else [patient]
+        self.patient = None
+        self.experiment = None
+        self.edf_data = pd.DataFrame()
         self.data = []
 
     def _get_path(self, patient: int) -> str:
@@ -52,24 +55,38 @@ class PreprocessingDataReader:
         except Exception as e:
             print(f"Could not read {file_path}: {e}")
 
+    def load(self, patient: Union[int|List[int]], experiment: Union[int|List[int]]) -> pd.DataFrame:
+        self.patient = patient if isinstance(patient, list) else [patient]
+        self.experiment = experiment if isinstance(experiment, list) else [experiment]
+        experiments = [f"R{e:02d}" for e in self.experiment]
 
-    def load(self):
-        patients_data = pd.DataFrame()
         for patient in self.patient:
             patient_path = self._get_path(patient)
             if not os.path.exists(patient_path):
                 print(f"Patient folder not found: {patient_path}")
             for file in tqdm(os.listdir(patient_path), desc=f"Reading EDF rom patient: {patient:03d}"):
-                if file.endswith(".edf"):
+                if file.endswith(".edf") and any(exp in file for exp in experiments):
                     file_path = os.path.join(patient_path, file)
                     patient_data = self._read_edf_file(file_path)
-                    patients_data = pd.concat([patients_data, patient_data], ignore_index=True)
-        return patients_data
-    def normalize(self):
-        pass
+                    self.edf_data = pd.concat([self.edf_data, patient_data], ignore_index=True)
+        return self.edf_data
 
+    def normalize(self, norm_type: str = "min-max"):
+        if self.edf_data.empty:
+            print("No data loaded. Please call load() before normalize().")
+
+        column_names = self.edf_data.columns
+        if norm_type == "min-max":
+            scaler = MinMaxScaler()
+        elif norm_type == "z-score":
+            scaler = StandardScaler()
+        else:
+            raise ValueError("Normalization type must be 'min-max' or 'z-score'.")
+
+        self.edf_data[column_names] = scaler.fit_transform(self.edf_data[column_names])
 
 if __name__ == '__main__':
     path = '../data/physionet.org/files/eegmmidb/1.0.0'
-    data = PreprocessingDataReader(path=path, patient=[1])
-    edf = data.load()
+    data = PreprocessingDataReader(path=path)
+    data.load(patient=[1], experiment=[1, 2, 3])
+    data.normalize(norm_type="min-max")
