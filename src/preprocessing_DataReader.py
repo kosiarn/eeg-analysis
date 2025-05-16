@@ -18,7 +18,6 @@ class PreprocessingDataReader:
         patient (List[int]): List of patient IDs to load.
         experiment (List[int]): List of experiment IDs to load.
         edf_data (pd.DataFrame): Combined EEG data with associated codes.
-        data (List): Placeholder list, currently unused.
     """
     def __init__(self, path: str) -> None:
         """
@@ -32,7 +31,6 @@ class PreprocessingDataReader:
         self.patient = None
         self.experiment = None
         self.edf_data = pd.DataFrame()
-        self.data = []
 
     def _get_path(self, patient: int) -> str:
         """
@@ -124,7 +122,6 @@ class PreprocessingDataReader:
         if self.edf_data.empty:
             print("No data loaded. Please call load() before normalize().")
 
-        column_names = self.edf_data.columns
         if norm_type == "min-max":
             scaler = MinMaxScaler()
         elif norm_type == "z-score":
@@ -132,7 +129,9 @@ class PreprocessingDataReader:
         else:
             raise ValueError("Normalization type must be 'min-max' or 'z-score'.")
 
-        self.edf_data[column_names] = scaler.fit_transform(self.edf_data[column_names])
+        features = self.edf_data.drop(columns=['codes'])
+        scaled = scaler.fit_transform(features)
+        self.edf_data.loc[:, features.columns] = scaled
 
     def get(self):
         """
