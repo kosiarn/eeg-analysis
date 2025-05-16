@@ -21,11 +21,11 @@ class Transformer:
             data: DataFrame,
             scales: list[float],
             channels: list[ChannelName] | Literal["all"] = "all"
-            ) -> dict[ChannelName | Literal["codes"], ArrayLike] | ValueError:
+            ) -> dict[ChannelName | Literal["codes"], ArrayLike]:
         """
         Performs a wavelet transform on supplied data.
         :param data: A dataframe that consists of columns with names found in CHANNEL_NAMES and numerical values. It should also include a column named `codes`; it's returned without the transformation applied
-        :param scales: a list of scales that will be applied to the wavelet function before transforming the data with it. Every row in channel's output corresponds to a value from this list
+        :param scales: a list of scales that will be applied to the wavelet function before transforming the data with it. Every row in channel's output corresponds to a value from this list; more info: https://pywavelets.readthedocs.io/en/latest/ref/cwt.html#pywt.cwt -> `scales` parameter
         :param channels: A list of channels that should undergo the transform. The output only consists of results for these channels and the `codes` column.
         """
         target_channels: list[ChannelName] = CHANNEL_NAMES if channels == "all" else channels
