@@ -69,7 +69,7 @@ class PreprocessingDataReader:
                     file_path = os.path.join(patient_path, file)
                     patient_data = self._read_edf_file(file_path)
                     self.edf_data = pd.concat([self.edf_data, patient_data], ignore_index=True)
-        return self.edf_data
+
 
     def normalize(self, norm_type: str = "min-max"):
         if self.edf_data.empty:
@@ -85,8 +85,12 @@ class PreprocessingDataReader:
 
         self.edf_data[column_names] = scaler.fit_transform(self.edf_data[column_names])
 
+    def get(self):
+        return self.edf_data
+
 if __name__ == '__main__':
     path = '../data/physionet.org/files/eegmmidb/1.0.0'
     data = PreprocessingDataReader(path=path)
     data.load(patient=[1], experiment=[1, 2, 3])
     data.normalize(norm_type="min-max")
+    data_edf = data.get()
