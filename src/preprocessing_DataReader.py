@@ -8,9 +8,9 @@ from typing import Union, List
 import os
 
 class PreprocessingDataReader:
-    def __init__(self, path: str, patient: Union[int|List[int]]) -> None:
+    def __init__(self, path: str) -> None:
         self.path = path
-        self.patient = patient if isinstance(patient, list) else [patient]
+        self.patient = None
         self.data = []
 
     def _get_path(self, patient: int) -> str:
@@ -52,8 +52,8 @@ class PreprocessingDataReader:
         except Exception as e:
             print(f"Could not read {file_path}: {e}")
 
-
-    def load(self):
+    def load(self, patient: Union[int|List[int]], experiment: Union[int|List[int]]) -> pd.DataFrame:
+        self.patient = patient if isinstance(patient, list) else [patient]
         patients_data = pd.DataFrame()
         for patient in self.patient:
             patient_path = self._get_path(patient)
@@ -65,11 +65,12 @@ class PreprocessingDataReader:
                     patient_data = self._read_edf_file(file_path)
                     patients_data = pd.concat([patients_data, patient_data], ignore_index=True)
         return patients_data
+
     def normalize(self):
         pass
 
 
 if __name__ == '__main__':
     path = '../data/physionet.org/files/eegmmidb/1.0.0'
-    data = PreprocessingDataReader(path=path, patient=[1])
-    edf = data.load()
+    data = PreprocessingDataReader(path=path)
+    edf = data.load(patient=[1], experiment=[0])
