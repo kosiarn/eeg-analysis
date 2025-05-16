@@ -11,9 +11,11 @@ class Wavelet(Enum):
     CGAU4 = "cgau4"
 
 class Transformer:
+    """The transformer class. It's capable of transforming a time series by chosen wavelet function."""
     wavelet: Wavelet
 
     def __init__(self, wavelet: Wavelet):
+        """:param wavelet: Type of the wavelet function."""
         self.wavelet = wavelet
     
     def CWTTransform(
@@ -22,6 +24,12 @@ class Transformer:
             scales: list[float],
             channels: list[ChannelName] | Literal["all"] = "all"
             ) -> dict[ChannelName | Literal["codes"], ArrayLike] | ValueError:
+        """
+        Performs a wavelet transform on supplied data.
+        :param data: A dataframe that consists of columns with names found in CHANNEL_NAMES and numerical values. It should also include a column named `codes`; it's returned without the transformation applied
+        :param scales: a list of scales that will be applied to the wavelet function before transforming the data with it. Every row in channel's output corresponds to a value from this list
+        :param channels: A list of channels that should undergo the transform. The output only consists of results for these channels and the `codes` column.
+        """
         target_channels: list[ChannelName] = CHANNEL_NAMES if channels == "all" else channels
         transformed: dict[ChannelName | Literal["codes"], ArrayLike] = {}
         transformed["codes"] = data["codes"]
