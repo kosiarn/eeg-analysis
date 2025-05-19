@@ -82,7 +82,7 @@ class PreprocessingDataReader:
                 set(edf_data.columns) - set(CHANNEL_NAMES)
             )
             codes = self._get_codes(raw)
-            edf_data["codes"] = np.array(codes).T
+            edf_data["codes"] = np.array(codes).T.astype(int)
             # https://stackoverflow.com/questions/22649693/drop-rows-with-all-zeros-in-pandas-data-frame
             edf_data = edf_data[~(edf_data == 0).all(axis=1)]
 
