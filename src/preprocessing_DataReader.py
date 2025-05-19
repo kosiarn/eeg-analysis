@@ -90,7 +90,7 @@ class PreprocessingDataReader:
         except Exception as e:
             print(f"Could not read {file_path}: {e}")
 
-    def load(self, patient: Union[int|List[int]], experiment: Union[int|List[int]]) -> pd.DataFrame:
+    def load(self, patient: int|list[int], experiment: int | list[int]) -> None:
         """
         Loads EEG data for one or more patients and experiments.
 
