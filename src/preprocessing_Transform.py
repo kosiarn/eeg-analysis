@@ -4,6 +4,7 @@ from utils.channel_names import ChannelName, CHANNEL_NAMES
 from typing import Literal
 from pandas import DataFrame
 from numpy.typing import ArrayLike
+from numpy import abs
 
 class Wavelet(Enum):
     CGAU4 = "cgau4"
@@ -33,7 +34,7 @@ class Transformer:
         transformed["codes"] = data["codes"]
         for channel in target_channels:
             coef, _ = pywt.cwt(data[channel], scales, self.wavelet.value)
-            transformed[channel] = coef
+            transformed[channel] = abs(coef)
         return transformed
 
 if __name__ == "__main__":

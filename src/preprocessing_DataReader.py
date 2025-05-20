@@ -82,7 +82,7 @@ class PreprocessingDataReader:
                 set(edf_data.columns) - set(CHANNEL_NAMES)
             )
             codes = self._get_codes(raw)
-            edf_data["codes"] = np.array(codes).T
+            edf_data["codes"] = np.array(codes).T.astype(int)
             # https://stackoverflow.com/questions/22649693/drop-rows-with-all-zeros-in-pandas-data-frame
             edf_data = edf_data[~(edf_data == 0).all(axis=1)]
 
@@ -90,7 +90,7 @@ class PreprocessingDataReader:
         except Exception as e:
             print(f"Could not read {file_path}: {e}")
 
-    def load(self, patient: Union[int|List[int]], experiment: Union[int|List[int]]) -> pd.DataFrame:
+    def load(self, patient: int|list[int], experiment: int | list[int]) -> None:
         """
         Loads EEG data for one or more patients and experiments.
 
