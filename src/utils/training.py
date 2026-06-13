@@ -5,7 +5,8 @@ def get_run_title(model_name: str) -> str:
     """
     Returns a unique run name in format "<specified model name>_<date in YYYY_MM_DD format>__<time in HH_MM format>"
     """
-    return f"{model_name.lower().replace(" ", "_")}_{strftime("%Y_%m_%d__%H_%M", gmtime())}"
+    safe_model_name = model_name.lower().replace(" ", "_")
+    return f"{safe_model_name}_{strftime('%Y_%m_%d__%H_%M', gmtime())}"
 
 def one_hot_encode_target(target: int) -> Tensor:
     """

@@ -1,0 +1,18 @@
+{
+  "data_dir": "./data/physionet.org/files/eegmmidb/1.0.0",
+  "experiment": 5,
+  "seq_len": 640,
+  "stride": 1,
+  "wavelet": "cgau4",
+  "min_scale": 1.0,
+  "max_scale": 64.0,
+  "n_scales": 32,
+  "batch_size": 32,
+  "lr": 0.001,
+  "epochs": 30,
+  "seed": 1337,
+  "hidden_size": 128,
+  "num_layers": 2,
+  "dropout": 0.2,
+  "head_hidden_size": 128
+}
