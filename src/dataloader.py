@@ -2,7 +2,7 @@ from torch.utils.data import Dataset
 from preprocessing_DataReader import PreprocessingDataReader
 from preprocessing_Transform import Transformer, Wavelet
 from numpy.typing import ArrayLike
-from typing import Literal, override
+from typing import Literal
 from utils.channel_names import ChannelName, CHANNEL_NAMES
 
 class EEGDataLoader(Dataset[tuple[list[float], float]]):
